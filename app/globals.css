@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Tema: espresso roast paleti ---
+ * Tailwind config'iyle birebir eşleşir; ham CSS'te de kullanılabilsin diye
+ * burada da değişken olarak tanımlanır.
+ */
+:root {
+  --color-ink: #13100c;
+  --color-gold: #cba36a;
+  --color-cream: #efe7d5;
+  --color-rich: #5a3a25;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* --- Seçim rengi: krem zemin üstünde altın highlight --- */
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+/* --- Yardımcı bileşenler ---
+ * Menü satırındaki ürün adı ile fiyat arasındaki noktalı dolgu çizgisi.
+ * `before` ile flexbox kullanmadan inline render edilir; uzun ürün adlarında
+ * doğal şekilde sarılır.
+ */
+.dot-leader {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1.2px);
+  background-position: bottom;
+  background-size: 8px 4px;
+  background-repeat: repeat-x;
+  opacity: 0.35;
+}
+
+/* Bölüm başlığı altındaki ince altın çizgi */
+.section-rule {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-gold) 20%,
+    var(--color-gold) 80%,
+    transparent
+  );
+}
+
+/* --- Film grain overlay ---
+ * Bütün sayfanın üstünde duran ince noise texture — premium "matbu"
+ * his verir. SVG inline olduğu için ekstra HTTP isteği yok.
+ *
+ * Perf notu: `mix-blend-mode` ve büyük fixed overlay'ler tarayıcıda yeni
+ * compositor layer açar — özellikle mobile'da repaint maliyetli olur.
+ * Bu yüzden:
+ *   - mix-blend-mode KALDIRILDI (opacity tek başına yeterli görünüyor)
+ *   - will-change: opacity → composite layer'ı baştan promote et
+ *   - SVG tile boyutu sabit; tarayıcı dokuyu tek seferde cache'ler
+ */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.07;
+  will-change: opacity;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* --- Scrollbar gizle (yatay scroll fonksiyonalitesi kalır) ---
+ * Mac'te "Always show scroll bars" sistem ayarı aç olunca yatay scroll
+ * container'larda (örn. menü tab nav) çirkin gri scrollbar görünür.
+ * Bu sınıf scrollbar'ı görsel olarak gizler ama scroll mantığı çalışmaya
+ * devam eder (tab tab ya da swipe ile kaydırılabilir).
+ */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / eski Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome / Safari / yeni Edge */
+}
+
+/* --- Hero video katmanı --- */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Çok hafif desaturation + warmth — markanın espresso paletine eklemlenir */
+  filter: saturate(0.85) brightness(0.7) contrast(1.05);
+}
