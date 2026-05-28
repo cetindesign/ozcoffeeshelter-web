@@ -2,49 +2,47 @@ import { sectionIds } from "@/lib/config";
 import { Reveal } from "./Reveal";
 
 /**
- * Galeri — bento-style asimetrik grid.
+ * Galeri — bento-style asimetrik grid + henüz fotoğraf yokken zarif boş durum.
  *
- * Mobile'da 2 kolon, lg'de 4 kolon ile 6 hücrelik düzen — bazı hücreler
- * iki satır kaplar, bazıları iki kolon. Bu kompozisyon "sıradan görsel
- * gridi" hissinden uzaklaşıp magazin layout'una yaklaştırır.
+ * --- Grid mantığı ---
+ * Desktop (lg, 4 kolon × 3 satır = 12 hücre) — span'ler tam 12 hücre doldurur:
+ *   Item 0: col 1, rows 1–2    (lg:row-span-2)   → 2 hücre
+ *   Item 1: col 2, row 1                          → 1 hücre
+ *   Item 2: cols 3–4, row 1   (lg:col-span-2)    → 2 hücre
+ *   Item 3: col 2, row 2                          → 1 hücre
+ *   Item 4: cols 3–4, rows 2–3 (lg:row-span-2 col-span-2) → 4 hücre
+ *   Item 5: cols 1–2, row 3   (lg:col-span-2)    → 2 hücre
+ * Mobile (2 kolon) — span'ler `lg:` prefix'iyle devre dışı, tüm hücreler 1×1.
  *
- * Görseller yüklenince public/gallery/0X.jpg üstte gözükür; yüklenmemişse
- * altta brand-koyu placeholder kalır (404 olmaz çünkü plain <img>).
+ * --- Fotoğraflar nereye gelir ---
+ * Bu dosyanın altındaki `galleryImages` dizisinde her item için `src` null.
+ * Fotoğraf hazır olunca:
+ *   1) public/gallery/ klasörü oluştur
+ *   2) Dosyaları 01.jpg, 02.jpg ... 06.jpg adıyla koy
+ *   3) Aşağıdaki dizide `src: null` → `src: "/gallery/01.jpg"` yap
+ * `src` dolu olan item'lar otomatik <img> render eder, boş kalanlar "yakında"
+ * placeholder'ı gösterir — yarı dolu duruma da hazır.
  */
-const galleryImages = [
-  {
-    src: "/gallery/01.jpg",
-    alt: "OZ Coffee Shelter mekan içi — sıcak ışıklı oturma alanı",
-    span: "row-span-2",
-  },
-  {
-    src: "/gallery/02.jpg",
-    alt: "Barista espresso hazırlarken yakın çekim",
-    span: "",
-  },
-  {
-    src: "/gallery/03.jpg",
-    alt: "Latte art ile servis edilen kahve",
-    span: "col-span-2",
-  },
-  {
-    src: "/gallery/04.jpg",
-    alt: "Matcha latte ve yanında tatlı sunumu",
-    span: "",
-  },
-  {
-    src: "/gallery/05.jpg",
-    alt: "Mekanın atmosferik dış cephesi",
-    span: "row-span-2 col-span-2",
-  },
-  {
-    src: "/gallery/06.jpg",
-    alt: "Summer Edition soğuk içecek servisi",
-    span: "",
-  },
-] as const;
+type GalleryItem = {
+  src: string | null;
+  alt: string;
+  span: string;
+};
+
+const galleryImages: GalleryItem[] = [
+  { src: null, alt: "OZ Coffee Shelter mekan içi — sıcak ışıklı oturma alanı", span: "lg:row-span-2" },
+  { src: null, alt: "Barista espresso hazırlarken yakın çekim", span: "" },
+  { src: null, alt: "Latte art ile servis edilen kahve", span: "lg:col-span-2" },
+  { src: null, alt: "Matcha latte ve yanında tatlı sunumu", span: "" },
+  { src: null, alt: "Mekanın atmosferik dış cephesi", span: "lg:row-span-2 lg:col-span-2" },
+  { src: null, alt: "Summer Edition soğuk içecek servisi", span: "lg:col-span-2" },
+];
 
 export function Gallery() {
+  // Fotoğraf eklenmemişse "yakında" durumunu otomatik tespit edip altta küçük
+  // bir bilgi notu göster — ileride bir kısmı dolduğunda not kaybolur.
+  const allEmpty = galleryImages.every((g) => !g.src);
+
   return (
     <section
       id={sectionIds.gallery}
@@ -68,7 +66,9 @@ export function Gallery() {
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-5 text-ink/60 text-base sm:text-lg max-w-xl">
-              Burası kahveden çok daha fazlası. Bir köşe, bir ışık, bir kupa.
+              {allEmpty
+                ? "Mekanımızdan kareler çok yakında — bekleyişte misiniz?"
+                : "Burası kahveden çok daha fazlası. Bir köşe, bir ışık, bir kupa."}
             </p>
           </Reveal>
         </div>
@@ -76,34 +76,61 @@ export function Gallery() {
         <div className="grid grid-cols-2 lg:grid-cols-4 auto-rows-[180px] sm:auto-rows-[220px] lg:auto-rows-[240px] gap-3 sm:gap-4 max-w-6xl mx-auto">
           {galleryImages.map((img, i) => (
             <Reveal
-              key={img.src}
+              key={i}
               delay={i * 0.06}
               as="article"
               className={`relative overflow-hidden rounded-lg group ${img.span}`}
             >
-              {/* Brand-koyu placeholder (görsel yokken görünür) */}
-              <div className="absolute inset-0 bg-gradient-to-br from-ink to-[#3a2c1f] flex items-center justify-center">
-                <span className="text-gold/30 font-serif text-3xl tracking-widest">
-                  OZ
-                </span>
-              </div>
-
-              {/* Gerçek görsel — public/gallery/0X.jpg eklenince devreye girer */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img.src}
-                alt={img.alt}
-                loading="lazy"
-                className="relative w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-
-              {/* Hover overlay — altın kenar + alttan koyu gradient */}
-              <div className="absolute inset-0 ring-0 group-hover:ring-1 group-hover:ring-gold/70 transition-all duration-500 rounded-lg" />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <PlaceholderTile index={i} />
+              {img.src && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  className="relative w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              )}
+              {/* Hover overlay'i sadece foto varken anlamlı */}
+              {img.src && (
+                <>
+                  <div className="absolute inset-0 ring-0 group-hover:ring-1 group-hover:ring-gold/70 transition-all duration-500 rounded-lg" />
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </>
+              )}
             </Reveal>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Foto yokken gösterilen yer tutucu — koyu zemin + ince altın motif.
+ * Index'e göre küçük varyasyonlar (gradient açısı, OZ konumu) ile
+ * "boş ama tasarlanmış" bir his verir.
+ */
+function PlaceholderTile({ index }: { index: number }) {
+  // 6 cell için altı farklı gradient yönü — tekrarı kırar.
+  const gradients = [
+    "from-ink to-[#3a2c1f]",
+    "from-[#2a1f15] to-[#1a130d]",
+    "from-[#1a130d] via-[#2a1f15] to-[#3a2c1f]",
+    "from-[#3a2c1f] to-ink",
+    "from-ink via-[#241a13] to-[#3b2a1c]",
+    "from-[#241a13] to-[#13100c]",
+  ];
+  const gradient = gradients[index % gradients.length];
+
+  return (
+    <div
+      className={`absolute inset-0 bg-gradient-to-br ${gradient} flex items-center justify-center`}
+      aria-hidden="true"
+    >
+      <span className="font-serif text-gold/25 text-2xl sm:text-3xl tracking-[0.4em]">
+        OZ
+      </span>
+    </div>
   );
 }
