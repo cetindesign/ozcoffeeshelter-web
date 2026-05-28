@@ -49,9 +49,21 @@ export function formatPrice(price: number | string): string {
 }
 
 // Unsplash görsel URL'sini standart kalite/boyut parametreleriyle inşa eder.
-// Tek yerde tutmak, bütün menü görsellerinin aynı oran/kalitede gelmesini sağlar.
+// w=1200: retina ekranlar için yeterli kaynak çözünürlük. Next/Image bunu
+// breakpoint'lere göre downscale ediyor, yani büyük kaynak ekstra maliyet değil.
+// q=82: görsel ve dosya boyutu arasında dengeli tatlı nokta.
+// auto=format: tarayıcıya AVIF/WebP servisi (Unsplash tarafında).
+// fit=crop & crop=center: 4:5 karta sığarken merkezdeki içerik korunur.
 const u = (id: string) =>
-  `https://images.unsplash.com/photo-${id}?w=800&q=80&auto=format&fit=crop&crop=center`;
+  `https://images.unsplash.com/photo-${id}?w=1200&q=82&auto=format&fit=crop&crop=center`;
+
+// --- Görsel atamaları hakkında ---
+// Her ID, Unsplash arama sonuçlarından SLUG ile içerik doğrulanarak seçildi
+// (örn. "white-ceramic-teacup-filled-of-matcha-tea" → Matcha Latte için).
+// Yine de "OZ Special" / "Flat Gold" / "Hulk" gibi imza içecekler için
+// stok kataloğunda birebir karşılık yok — yakın renk/atmosferdeki en uygun
+// görsel kullanıldı. Kendi ürün çekimlerin geldiğinde:
+//   public/menu/<slug>.jpg olarak ekle, item.image değerini "/menu/<slug>.jpg" yap.
 
 export const menu: MenuCategory[] = [
   {
@@ -59,19 +71,32 @@ export const menu: MenuCategory[] = [
     title: "Klasik Kahveler",
     layout: "cards",
     items: [
-      { name: "Filtre Kahve",  price: 120,         image: u("1495474472287-4d71bcdd2085") },
-      { name: "Espresso",      price: "90 – 110",  image: u("1510707577719-ae7c14805e3a") },
-      { name: "Americano",     price: 130,         image: u("1437418747212-8d9709afab22") },
-      { name: "Latte",         price: 140,         image: u("1561882468-9110e03e0f78") },
+      // pour-over filtre, beyaz fincana su akıyor
+      { name: "Filtre Kahve",  price: 120,         image: u("1582768772255-7fb8066357ce") },
+      // espresso, küçük fincan + tabak
+      { name: "Espresso",      price: "90 – 110",  image: u("1572286258217-40142c1c6a70") },
+      // americano, beyaz fincan ahşap masa
+      { name: "Americano",     price: 130,         image: u("1551030173-122aabc4489c") },
+      // barista latte art yaparken yakın çekim
+      { name: "Latte",         price: 140,         image: u("1777640116840-43f894545d20") },
+      // klasik beyaz fincanda cappuccino latte art
       { name: "Cappuccino",    price: 140,         image: u("1572442388796-11668a67e53d") },
-      { name: "Caramel Latte", price: 180,         image: u("1502462041640-b3d7e50d0662") },
-      { name: "Mocha",         price: 170,         image: u("1559827260-dc66d52bef19") },
+      // karamel tonlu buzlu kahve (cam bardakta)
+      { name: "Caramel Latte", price: 180,         image: u("1517701550927-30cf4ba1dba5") },
+      // mocha — kalp şekilli kahverengi-beyaz latte art
+      { name: "Mocha",         price: 170,         image: u("1593543294918-ca3634e04cdb") },
+      // beyaz-kahverengi katmanlı içecek (white mocha karakteri)
       { name: "White Mocha",   price: 180,         image: u("1517701604599-bb29b565090c") },
-      { name: "Toffie Nut",    price: 180,         image: u("1454944338482-a69bb95894af") },
-      { name: "Chai Tea Latte", price: 170,        image: u("1564890369478-c89ca6d9cde9") },
-      { name: "Flat White",    price: 160,         image: u("1517959105821-eaf2591984ca") },
-      { name: "Türk Kahvesi",  price: "90 – 110",  image: u("1499636136210-6f4ee915583e") },
-      { name: "Çay",           price: 60,          image: u("1571934811356-5cc061b6821f") },
+      // findik tonlu kahverengi latte (cam kupa)
+      { name: "Toffie Nut",    price: 180,         image: u("1598831745385-0c404c7034a9") },
+      // chai — baharatlı sütlü çay tonunda
+      { name: "Chai Tea Latte", price: 170,        image: u("1582746989278-c1eaac54b222") },
+      // flat white, beyaz fincan, ince mikrofoam
+      { name: "Flat White",    price: 160,         image: u("1616084776095-8cbe9787bc3a") },
+      // Türk kahvesi — bakır cezve & kaşık
+      { name: "Türk Kahvesi",  price: "90 – 110",  image: u("1579481802836-4c56a02b36d9") },
+      // ince belli bardakta Türk çayı
+      { name: "Çay",           price: 60,          image: u("1613987108430-b4bb3863e595") },
     ],
   },
   {
@@ -79,13 +104,17 @@ export const menu: MenuCategory[] = [
     title: "Specials",
     layout: "cards",
     items: [
-      { name: "Spanish Latte", price: 200, image: u("1556679343-c7306c1976bc"),
+      // buzlu latte, cam bardakta (Spanish latte estetiği)
+      { name: "Spanish Latte", price: 200, image: u("1620360289100-030b032e5a27"),
         note: "Yoğunlaştırılmış süt ile katmanlı imza tarifi." },
-      { name: "OZ Special",    price: 200, image: u("1610632380989-680fe40816c6"),
+      // specialty coffee — koyu cinematic
+      { name: "OZ Special",    price: 200, image: u("1593290665075-71c247095491"),
         note: "Evin imzası — şefin gizli tarifi." },
-      { name: "Flat Gold",     price: 200, image: u("1538587888044-79f13ddd7e49"),
+      // altın/karamel tonlu kahve
+      { name: "Flat Gold",     price: 200, image: u("1502462041640-b3d7e50d0662"),
         note: "Karamelize altın tonlarında ipeksi bir flat white." },
-      { name: "Hulk",          price: 200, image: u("1515442261605-65987783cb6a"),
+      // yeşil buzlu içecek — Hulk
+      { name: "Hulk",          price: 200, image: u("1717398804998-ad2d48822518"),
         note: "Matcha + espresso buluşması — yeşilin enerjisi." },
     ],
   },
@@ -94,9 +123,12 @@ export const menu: MenuCategory[] = [
     title: "Matchas",
     layout: "cards",
     items: [
-      { name: "Matcha Tea",          price: 180, image: u("1536256263959-770b48d82b0a") },
-      { name: "Vanilla Matcha Latte", price: 220, image: u("1515823064-d6e0c04616a7") },
-      { name: "Matcha Latte",        price: 200, image: u("1551782450-a2132b4ba21d") },
+      // chasen (matcha çırpıcısı) ile çanak içinde matcha
+      { name: "Matcha Tea",          price: 180, image: u("1753009712810-3f72c3f72548") },
+      // ombre/katmanlı matcha latte (vanilya için ideal)
+      { name: "Vanilla Matcha Latte", price: 220, image: u("1749280447307-31a68eb38673") },
+      // beyaz fincanda klasik matcha latte
+      { name: "Matcha Latte",        price: 200, image: u("1515823064-d6e0c04616a7") },
     ],
   },
   {
@@ -104,12 +136,18 @@ export const menu: MenuCategory[] = [
     title: "Summer Edition",
     layout: "cards",
     items: [
+      // kırmızı buzlu hibiskus
       { name: "Iced Hibiskus",         price: 200, image: u("1499638673689-79a0b5115d87") },
-      { name: "Cool Lime",             price: 200, image: u("1559056199-641a0ac8b55e") },
-      { name: "Limon Çilek Frozen",    price: 200, image: u("1502741126161-b048400d085d") },
-      { name: "Limonata",              price: 180, image: u("1556881286-fc6915169721") },
-      { name: "Orman Meyveli Frozen",  price: 200, image: u("1546173159-315724a31696") },
-      { name: "Elma Nane Frozen",      price: 200, image: u("1568649929103-28ffbefaca1e") },
+      // yeşil buzlu lime/mojito içecek
+      { name: "Cool Lime",             price: 200, image: u("1720446838030-d914440e6a16") },
+      // çilek-limon yüksek bardakta
+      { name: "Limon Çilek Frozen",    price: 200, image: u("1573500883698-e3ef47a95feb") },
+      // limonata — sıkma anı (el + limon + bardak)
+      { name: "Limonata",              price: 180, image: u("1656936637945-571e3f0893f9") },
+      // mor/koyu kırmızı orman meyveli smoothie
+      { name: "Orman Meyveli Frozen",  price: 200, image: u("1643470758221-45463a3d210a") },
+      // yeşil elma-nane buzlu içecek
+      { name: "Elma Nane Frozen",      price: 200, image: u("1622597468666-27cb9cae0e45") },
     ],
   },
   {
@@ -117,9 +155,12 @@ export const menu: MenuCategory[] = [
     title: "Soft",
     layout: "cards",
     items: [
-      { name: "Soda",      price: 70,  image: u("1543253687-c931c8e01820") },
-      { name: "Su",        price: 35,  image: u("1548839140-29a749e1cf4d") },
-      { name: "Churchill", price: 100, image: u("1551030173-122aabc4489c") },
+      // gazlı su / soda (bardakta)
+      { name: "Soda",      price: 70,  image: u("1643114451704-8f44b1d1a681") },
+      // sade su, berrak bardakta
+      { name: "Su",        price: 35,  image: u("1534616042650-80f5c9b61f09") },
+      // bardakta limon + nane + buz (Churchill için)
+      { name: "Churchill", price: 100, image: u("1653542772393-71ffa417b1c4") },
     ],
   },
   {
