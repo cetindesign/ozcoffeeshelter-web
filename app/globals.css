@@ -77,6 +77,37 @@ body {
   background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
+/* --- Marquee animation ---
+ * CSS keyframe ile dikişsiz yatay döngü.
+ *
+ * Track içeriği (items × 2) dublike edildiği için translateX(-50%) tam
+ * bir items grubu kadar kayar → seamless loop.
+ *
+ * Pause durumları:
+ *   1) :hover            → desktop'ta üzerine gelince durur
+ *   2) [data-paused]     → tap-toggle ile durur (mobile için)
+ *   3) prefers-reduced-motion → tamamen kapalı
+ *
+ * Performans: tamamen GPU (transform), JS overhead yok.
+ */
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+.marquee-wrap:hover .marquee-track,
+.marquee-wrap[data-paused] .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* --- Scrollbar gizle (yatay scroll fonksiyonalitesi kalır) ---
  * Mac'te "Always show scroll bars" sistem ayarı aç olunca yatay scroll
  * container'larda (örn. menü tab nav) çirkin gri scrollbar görünür.

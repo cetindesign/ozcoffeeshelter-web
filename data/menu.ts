@@ -77,8 +77,8 @@ export const menu: MenuCategory[] = [
       { name: "Espresso",      price: "90 – 110",  image: u("1572286258217-40142c1c6a70") },
       // americano, beyaz fincan ahşap masa
       { name: "Americano",     price: 130,         image: u("1551030173-122aabc4489c") },
-      // barista latte art yaparken yakın çekim
-      { name: "Latte",         price: 140,         image: u("1777640116840-43f894545d20") },
+      // beyaz fincan + tabakta latte art (sade arka plan, dekoratif öğe yok)
+      { name: "Latte",         price: 140,         image: u("1774529239747-125d7a0bf928") },
       // klasik beyaz fincanda cappuccino latte art
       { name: "Cappuccino",    price: 140,         image: u("1572442388796-11668a67e53d") },
       // karamel tonlu buzlu kahve (cam bardakta)
@@ -93,10 +93,10 @@ export const menu: MenuCategory[] = [
       { name: "Chai Tea Latte", price: 170,        image: u("1582746989278-c1eaac54b222") },
       // flat white, beyaz fincan, ince mikrofoam
       { name: "Flat White",    price: 160,         image: u("1616084776095-8cbe9787bc3a") },
-      // Türk kahvesi — bakır cezve & kaşık
-      { name: "Türk Kahvesi",  price: "90 – 110",  image: u("1579481802836-4c56a02b36d9") },
-      // ince belli bardakta Türk çayı
-      { name: "Çay",           price: 60,          image: u("1613987108430-b4bb3863e595") },
+      // köpüklü Türk kahvesi, fincan + tabakta (Şeyda Nur Yüce)
+      { name: "Türk Kahvesi",  price: "90 – 110",  image: u("1670351230643-27f874d17025") },
+      // ince belli Türk çay bardağı (klasik tulip glass)
+      { name: "Çay",           price: 60,          image: u("1579005162638-11c872e1586e") },
     ],
   },
   {
